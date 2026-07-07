@@ -1,0 +1,8 @@
+{
+  "name": "secours-inondations",
+  "description": "Aide a la decision pour les equipes de secours en situation de crue : localisation, caracterisation de zone, niveaux de crue, meteo, veille sanitaire et restitution.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Cassandre Mathiot"
+  }
+}
