@@ -14,6 +14,13 @@ DATASET_URL = (
 
 
 def get_gastro_enterite_trend(code_departement, weeks=8):
+    """Weekly acute-gastro-enteritis ER-visit rate trend for a department.
+
+    Compares the most recent week to the oldest one in the requested window (a >15%
+    move either way counts as hausse/baisse, otherwise "stable" — a deliberately simple,
+    explainable rule rather than a fitted model). Returns {"error": "..."} if the API
+    call failed or no data exists for that department.
+    """
     data = get_json(DATASET_URL, params={
         "where": f'dep="{code_departement}" AND sursaud_cl_age_gene="Tous âges"',
         "order_by": "date_complet desc",

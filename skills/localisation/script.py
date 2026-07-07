@@ -15,16 +15,19 @@ from common.overpass import bridges_near, buildings_count_near, roads_near, wate
 
 
 def cmd_geocode(args):
+    """Print coordinates for a free-text address."""
     result = geocode(args.address)
     print(json.dumps({"source": "BAN (api-adresse.data.gouv.fr)", **wrap(result)}, ensure_ascii=False))
 
 
 def cmd_reverse(args):
+    """Print the nearest known address label for a lat/lon point."""
     result = reverse_geocode(args.lat, args.lon)
     print(json.dumps({"source": "BAN (api-adresse.data.gouv.fr)", **wrap(result)}, ensure_ascii=False))
 
 
 def cmd_acces(args):
+    """Print roads, bridges, water access and building density around a point."""
     routes = roads_near(args.lat, args.lon, radius_m=args.radius_m)
     ponts = bridges_near(args.lat, args.lon, radius_m=args.radius_m * 2)
     points_eau = water_access_near(args.lat, args.lon, radius_m=args.radius_m * 2)
@@ -48,6 +51,8 @@ def cmd_acces(args):
 
 
 def wrap(result):
+    """Nest a successful result under "resultat" (errors pass through as-is), so the
+    final JSON always has a stable top-level shape regardless of success/failure."""
     if isinstance(result, dict) and "error" in result:
         return result
     return {"resultat": result}

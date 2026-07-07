@@ -16,6 +16,14 @@ SEVESO_STATUSES = ("Seveso seuil haut", "Seveso seuil bas")
 
 
 def sites_near(lat, lon, radius_m=5000, tous=False):
+    """ICPE sites within radius_m of a point, nearest first.
+
+    By default (tous=False) keeps only Seveso sites (seuil haut/bas); tous=True returns
+    every classified installation, Seveso or not. Returns {"sites": [...], "troncature":
+    bool} — "troncature" is True if MAX_PAGES was hit and more results may exist but
+    weren't fetched (radius_m is itself capped at MAX_RADIUS_M, above which the API
+    reliably 500s). Returns {"error": "..."} if the API call failed.
+    """
     radius_m = min(radius_m, MAX_RADIUS_M)
     sites, truncated = [], False
 

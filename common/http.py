@@ -20,6 +20,11 @@ RETRY_DELAY_SECONDS = 2
 
 
 def get_json(url, params=None, timeout=DEFAULT_TIMEOUT):
+    """GET a URL and return its parsed JSON body, or {"error": "..."} on any failure.
+
+    Every caller in this project relies on that convention (check "error" in result)
+    instead of letting exceptions propagate — this is the one place that enforces it.
+    """
     for attempt in range(MAX_RETRIES + 1):
         try:
             response = requests.get(url, params=params, timeout=timeout, headers=HEADERS)

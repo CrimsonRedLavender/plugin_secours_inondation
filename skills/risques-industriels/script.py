@@ -13,6 +13,7 @@ from common.georisques import sites_near  # noqa: E402
 
 
 def cmd_proches(args):
+    """Print ICPE/Seveso sites near a point."""
     result = sites_near(args.lat, args.lon, radius_m=args.radius_m, tous=args.tous)
     if isinstance(result, dict) and "error" in result:
         print(json.dumps(result, ensure_ascii=False))

@@ -15,6 +15,8 @@ from common.insee import find_commune  # noqa: E402
 
 
 def cmd_tendance(args):
+    """Print the gastro-enteritis ER-visit trend for a department (given directly, or
+    resolved from a point/commune name first)."""
     avertissement = None
     if args.departement:
         code_departement = args.departement

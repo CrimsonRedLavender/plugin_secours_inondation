@@ -20,6 +20,14 @@ def _normalize(text):
 
 
 def find_commune(lat=None, lon=None, nom=None):
+    """Look up a commune by point or by name.
+
+    Exactly one of (lat, lon) or nom must be given. Returns geo.api.gouv.fr's record
+    (dict with at least "nom", "code", "codeDepartement", "population", "surface" in
+    **hectares, not km2** — divide by 100 to convert), or {"error": "..."}. When looked
+    up by name and the match isn't exact, adds an "avertissement" key rather than failing
+    silently (see note below on why the API's own score can't be used for that).
+    """
     params = {"fields": "nom,code,codeDepartement,population,surface,centre"}
     if lat is not None and lon is not None:
         params["lat"] = lat
@@ -52,6 +60,13 @@ def find_commune(lat=None, lon=None, nom=None):
 
 
 def get_age_breakdown(code_insee, annee=2023):
+    """Age-bracket shares/counts for a commune in a given census year.
+
+    Returns {"annee", "population_totale_insee", then for each of 65+/80+/under-15:
+    "part_<bracket>_pct" and "personnes_<bracket>"} — brackets absent from the INSEE
+    response (rare, small communes) are simply omitted rather than guessed. Returns
+    {"error": "..."} if the API call failed or no data exists for that commune/year.
+    """
     data = get_json(MELODI_URL, params={"GEO": f"COM-{code_insee}", "SEX": "_T", "TIME_PERIOD": str(annee)})
     if "error" in data:
         return data

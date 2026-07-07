@@ -14,11 +14,13 @@ from common.insee import find_commune, get_age_breakdown  # noqa: E402
 
 
 def cmd_profil(args):
+    """Print population, density and age-based vulnerability for a commune (by point or name)."""
     commune = find_commune(lat=args.lat, lon=args.lon, nom=args.commune)
     if "error" in commune:
         print(json.dumps(commune, ensure_ascii=False))
         return
 
+    # geo.api.gouv.fr returns surface in hectares, not km2 — see common/insee.py docstring.
     surface_km2 = commune["surface"] / 100 if commune.get("surface") else None
     densite = round(commune["population"] / surface_km2, 1) if surface_km2 else None
 

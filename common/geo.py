@@ -3,6 +3,7 @@ import math
 
 
 def haversine_km(lat1, lon1, lat2, lon2):
+    """Great-circle distance in km between two lat/lon points (decimal degrees)."""
     r = 6371.0
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     dphi = math.radians(lat2 - lat1)

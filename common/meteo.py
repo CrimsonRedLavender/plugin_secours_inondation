@@ -10,6 +10,12 @@ FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
 
 def get_rain_forecast(lat, lon, hours=72):
+    """Rainfall forecast for a point, from now (per Open-Meteo's own clock) forward.
+
+    Returns cumulative mm at 24h/48h/72h checkpoints (whichever fit in `hours`), the
+    hourly peak and when it occurs, and the current precipitation reading. Returns
+    {"error": "..."} if the API call failed.
+    """
     forecast_days = max(1, min(7, (hours // 24) + 2))
     data = get_json(FORECAST_URL, params={
         "latitude": lat,

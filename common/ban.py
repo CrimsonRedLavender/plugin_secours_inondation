@@ -6,6 +6,14 @@ REVERSE_URL = "https://api-adresse.data.gouv.fr/reverse/"
 
 
 def geocode(address):
+    """Best-match coordinates for a free-text address.
+
+    Returns {"label", "lat", "lon", "type", "score", "commune", "code_insee"} on success,
+    or {"error": "..."}. `score` (0-1) is BAN's own confidence in the match — a high score
+    does not guarantee the match is what the caller meant (e.g. "Berlin" resolves to a
+    real French hamlet with score ~0.94), so callers must sanity-check it themselves; see
+    skills/localisation/SKILL.md for the interpretation rule.
+    """
     data = get_json(SEARCH_URL, params={"q": address, "limit": 1})
     if "error" in data:
         return data
@@ -26,6 +34,7 @@ def geocode(address):
 
 
 def reverse_geocode(lat, lon):
+    """Nearest known address label for a lat/lon point, or {"error": "..."}."""
     data = get_json(REVERSE_URL, params={"lat": lat, "lon": lon})
     if "error" in data:
         return data

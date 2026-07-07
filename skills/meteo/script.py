@@ -13,6 +13,7 @@ from common.meteo import get_rain_forecast  # noqa: E402
 
 
 def cmd_prevision(args):
+    """Print the rainfall forecast for a point."""
     result = get_rain_forecast(args.lat, args.lon, hours=args.heures)
     if isinstance(result, dict) and "error" in result:
         print(json.dumps(result, ensure_ascii=False))

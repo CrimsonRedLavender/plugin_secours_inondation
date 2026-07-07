@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""CLI for the 'crue' skill: nearby hydrometric stations and river level/trend, via Hub'Eau."""
+"""CLI for the 'crue' skill: nearby hydrometric stations, river level/trend (Hub'Eau),
+and the official Vigicrues vigilance color (vert/jaune/orange/rouge) for the same point.
+"""
 import argparse
 import json
 import os
@@ -10,14 +12,17 @@ PLUGIN_ROOT = os.path.dirname(os.path.dirname(SKILL_DIR))
 sys.path.insert(0, PLUGIN_ROOT)
 
 from common.hydro import find_nearby_stations, get_recent_observations, summarize_trend  # noqa: E402
+from common.vigicrues import find_nearest_vigilance  # noqa: E402
 
 
 def cmd_stations(args):
+    """Print active hydrometric stations near a point."""
     result = find_nearby_stations(args.lat, args.lon, radius_km=args.radius_km)
     print(json.dumps({"source": "Hub'Eau hydrometrie (referentiel stations)", "stations": result}, ensure_ascii=False))
 
 
 def cmd_niveau(args):
+    """Print current level/trend (nearest station or --station) plus vigilance color."""
     station_label = None
     if args.station:
         code_station = args.station
@@ -38,12 +43,21 @@ def cmd_niveau(args):
         return
 
     trend = summarize_trend(observations)
+
+    # Vigicrues vigilance is looked up by geometry (nearest section to a point), so it
+    # needs actual coordinates — skip it silently (stays None) when the caller only gave
+    # --station, since there's no lat/lon to search from in that case.
+    vigilance = None
+    if args.lat is not None and args.lon is not None:
+        vigilance = find_nearest_vigilance(args.lat, args.lon)
+
     print(json.dumps({
-        "source": "Hub'Eau hydrometrie (donnee Vigicrues federee)",
+        "source": "Hub'Eau hydrometrie (donnee Vigicrues federee) + Vigicrues vigilance crues",
         "note": "hauteur d'eau relative au repere local de la station, pas une profondeur absolue",
         "code_station": code_station,
         "station": station_label,
         **trend,
+        "vigilance_crues": vigilance,
     }, ensure_ascii=False))
 
 

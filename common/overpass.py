@@ -17,6 +17,7 @@ CLIENT_TIMEOUT = 25
 
 
 def _run(query):
+    """Execute a raw Overpass QL query, returning its "elements" list or {"error": "..."}."""
     data = get_json(OVERPASS_URL, params={"data": query}, timeout=CLIENT_TIMEOUT)
     if "error" in data:
         return data
@@ -60,6 +61,7 @@ def facilities_near(tag_filter, lat, lon, radius_m=1500, limit=15):
 
 
 def roads_near(lat, lon, radius_m=800, limit=15):
+    """Distinct named road names within radius_m of a point (unnamed ways are skipped)."""
     query = f'[out:json][timeout:20];way["highway"](around:{radius_m},{lat},{lon});out tags {limit};'
     elements = _run(query)
     if isinstance(elements, dict):
@@ -74,6 +76,7 @@ def roads_near(lat, lon, radius_m=800, limit=15):
 
 
 def bridges_near(lat, lon, radius_m=1500, limit=10):
+    """Bridges within radius_m of a point — potential cut-off points during a flood."""
     query = f'[out:json][timeout:20];way["bridge"="yes"](around:{radius_m},{lat},{lon});out tags {limit};'
     elements = _run(query)
     if isinstance(elements, dict):
@@ -86,6 +89,10 @@ def bridges_near(lat, lon, radius_m=1500, limit=10):
 
 
 def water_access_near(lat, lon, radius_m=1500, limit=10):
+    """Named linear watercourses (river/stream/canal) within radius_m of a point.
+
+    Deliberately excludes `natural=water` (lakes/riverbanks) — see module docstring.
+    """
     query = (
         f'[out:json][timeout:20];'
         f'way["waterway"~"^(river|stream|canal)$"](around:{radius_m},{lat},{lon});'
@@ -106,6 +113,7 @@ def water_access_near(lat, lon, radius_m=1500, limit=10):
 
 
 def buildings_count_near(lat, lon, radius_m=300):
+    """Number of mapped buildings within radius_m — a density proxy, not a full listing."""
     query = f'[out:json][timeout:20];way["building"](around:{radius_m},{lat},{lon});out count;'
     elements = _run(query)
     if isinstance(elements, dict):

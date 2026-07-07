@@ -32,6 +32,20 @@ densite de batiments (nombre de batiments dans le rayon, pas une liste individue
 
 - Si l'utilisateur donne une adresse plutot que des coordonnees, commencer par `geocode`
   puis reutiliser `lat`/`lon` pour `acces`.
+- `geocode` n'a pas de champ `avertissement` explicite (contrairement a
+  `demographie-vulnerabilite`/`veille-sanitaire`) : la fiabilite du resultat se lit dans
+  le champ `score` (0 a 1), a verifier systematiquement avant de presenter le resultat
+  comme acquis :
+  - `score` < 0.5 : match faible, **le signaler explicitement** plutot que de presenter
+    le lieu trouve comme la reponse (confirme en pratique : une adresse qui n'existe pas
+    peut renvoyer un lieu francais totalement different avec un score autour de 0.4).
+  - `score` >= 0.8 mais le nom demande pourrait designer un lieu hors de France (grande
+    ville etrangere, nom courant) : **verifier que le `commune`/`label` renvoye est
+    plausible par rapport a la demande avant de l'utiliser**, un score eleve ne suffit
+    pas a garantir que c'est le bon lieu. Confirme en pratique : "Berlin" renvoie un
+    hameau reel de l'Ariege (score ~0.94) au lieu de signaler l'absence de couverture
+    hors de France — ne jamais presenter ce genre de match comme la capitale allemande
+    ou equivalent sans le signaler comme suspect.
 - `points_eau` ne couvre que les cours d'eau lineaires (waterway=river/stream/canal), pas
   les plans d'eau/lacs (natural=water) : cette derniere categorie est deliberement exclue
   car elle correspond a des polygones OSM parfois enormes que l'API publique Overpass

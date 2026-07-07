@@ -21,6 +21,7 @@ CATEGORIES = {
 
 
 def cmd_proches(args):
+    """Print sensitive facilities near a point, for one category or all of them."""
     categories = CATEGORIES if args.categorie == "tous" else {args.categorie: CATEGORIES[args.categorie]}
     result = {}
     for name, tag_filter in categories.items():

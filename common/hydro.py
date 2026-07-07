@@ -12,6 +12,12 @@ BBOX_DEGREES_PER_KM = 1 / 111.0
 
 
 def find_nearby_stations(lat, lon, radius_km=15, limit=5):
+    """Active hydrometric stations within radius_km of (lat, lon), nearest first.
+
+    Returns a list of {"code_station", "nom", "cours_eau", "commune", "distance_km"},
+    or {"error": "..."} if the API call itself failed (an empty list is a normal "none
+    found", not an error).
+    """
     delta = radius_km * BBOX_DEGREES_PER_KM
     bbox = f"{lon - delta},{lat - delta},{lon + delta},{lat + delta}"
     data = get_json(STATIONS_URL, params={
@@ -39,6 +45,12 @@ def find_nearby_stations(lat, lon, radius_km=15, limit=5):
 
 
 def get_recent_observations(code_station, n=12):
+    """Last n real-time height observations for a station, newest first.
+
+    Each observation is a raw Hub'Eau record (dict with at least "date_obs" and
+    "resultat_obs"); pass the result straight to summarize_trend(). Returns
+    {"error": "..."} if the API call failed.
+    """
     data = get_json(OBSERVATIONS_URL, params={
         "code_entite": code_station,
         "grandeur_hydro": "H",
@@ -51,6 +63,13 @@ def get_recent_observations(code_station, n=12):
 
 
 def summarize_trend(observations):
+    """Derive a hausse/stable/baisse trend from a list of observations (as returned by
+    get_recent_observations), comparing the newest and oldest points in the window.
+
+    `hauteur_actuelle_mm` is relative to the station's own local reference (can be
+    negative) — never present it as an absolute depth. The +-5mm/h band around zero is
+    treated as noise ("stable"), not a real trend either way.
+    """
     if not observations:
         return {"tendance": "inconnue", "raison": "aucune observation disponible pour cette station"}
 
